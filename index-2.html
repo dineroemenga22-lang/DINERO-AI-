@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DINERO AI</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#050505;color:#eee;font-family:Arial,sans-serif}
+.app{max-width:900px;min-height:100vh;margin:auto;display:flex;flex-direction:column}
+header{height:72px;border-bottom:1px solid #222;display:flex;align-items:center;padding:12px 18px;gap:12px}
+.logo,.big{background:#fff;color:#000;border-radius:50%;display:grid;place-items:center;font-weight:900}.logo{width:42px;height:42px}.big{width:80px;height:80px;font-size:40px;margin:auto}
+h1{font-size:18px;letter-spacing:2px;margin:0}small{color:#777}.chat{flex:1;padding:30px 16px 110px}
+.welcome{text-align:center;margin:70px auto;color:#aaa}.welcome h2{color:#fff}
+.msg{display:flex;margin:16px 0}.msg.user{justify-content:flex-end}.bubble{max-width:78%;padding:12px 15px;border-radius:16px;line-height:1.5;background:#111;border:1px solid #222;white-space:pre-wrap}.user .bubble{background:#fff;color:#000}
+.avatar{width:32px;height:32px;border-radius:50%;background:#fff;color:#000;display:grid;place-items:center;font-weight:bold;margin-right:9px;flex:none}.user .avatar{display:none}
+form{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);width:min(860px,calc(100% - 24px));background:#111;border:1px solid #292929;border-radius:18px;padding:9px;display:flex;gap:8px}
+textarea{flex:1;background:transparent;color:#fff;border:0;outline:0;resize:none;padding:12px;font:15px Arial}button{width:48px;border:0;border-radius:13px;background:#fff;color:#000;font-size:20px;cursor:pointer}
+footer{position:fixed;bottom:3px;left:0;width:100%;text-align:center;color:#444;font-size:10px}@media(max-width:600px){.bubble{max-width:88%}}
+</style>
+</head>
+<body>
+<main class="app">
+<header><div class="logo">D</div><div><h1>DINERO AI</h1><small>Froid. Direct. Sarcastique.</small></div></header>
+<section id="chat" class="chat"><div class="welcome"><div class="big">D</div><h2>DINERO AI</h2><p>Pose ta question. Essaie donc.</p></div></section>
+<form id="form"><textarea id="input" placeholder="Pose ta question..." rows="1"></textarea><button type="submit">➤</button></form>
+<footer>DINERO AI — fonctionnement local, aucune API.</footer>
+</main>
+<script>
+const rules=[
+[/^(bonjour|salut|hello|bonsoir|cc|coucou)$/i,"Bonjour. Maintenant que les formalités sont terminées, pose une vraie question."],
+[/(qui es tu|tu es qui|présente toi|ton nom|comment tu t.?appelles)/i,"Je suis DINERO AI. Froid, direct et suffisamment intelligent pour répondre sans faire semblant."],
+[/(tu fais quoi|que fais tu|tu fait quoi|qu.?est ce que tu fais|a quoi tu sers)/i,"Je réponds aux questions, j'explique des choses et je peux t'aider à réfléchir. Bref, je travaille pendant que toi tu poses des questions."],
+[/(tu es intelligent|es tu intelligent)/i,"Assez pour répondre à ta question. Pour le reste, on va attendre les preuves."],
+[/(tu es humain|es tu humain)/i,"Non. Je suis un programme. Étonnamment, tu n'as pas besoin de me nourrir."],
+[/(merci|merci beaucoup)/i,"De rien. Tu peux garder ton enthousiasme pour plus tard."],
+[/(capitale.*gabon|gabon.*capitale)/i,"Libreville."],
+[/(capitale.*france|france.*capitale)/i,"Paris. Même DINERO AI avait prévu celle-là."],
+[/(2\\s*\\+\\s*2|deux plus deux)/i,"4. Je pensais que tu allais viser plus haut."],
+[/(comment devenir riche|devenir riche)/i,"Développe une compétence utile, augmente tes revenus, contrôle tes dépenses et investis avec prudence. Le bouton « argent gratuit » n'existe malheureusement pas."],
+[/(comment.*(apprendre|commencer).*coder|apprendre.*programmation)/i,"Commence par HTML, CSS et JavaScript, puis construis de petits projets. Oui, il faudra pratiquer."],
+[/(c.?est quoi.*api|api.*c.?est quoi)/i,"Une API permet à des logiciels de communiquer entre eux. En gros, ils se parlent au lieu de se regarder en silence."],
+[/(c.?est quoi.*github|github.*c.?est quoi)/i,"GitHub est une plateforme de collaboration et d'hébergement de code."],
+[/(c.?est quoi.*internet|internet.*c.?est quoi)/i,"Internet est un immense réseau de réseaux permettant à des appareils et services de communiquer."],
+[/(c.?est quoi.*ia|ia.*c.?est quoi|intelligence artificielle)/i,"Une IA est un système informatique capable d'effectuer certaines tâches qui nécessitent habituellement des capacités associées à l'intelligence humaine."],
+[/(peux tu m.?aider|tu peux m.?aider|aide moi)/i,"Oui. Pose une question précise et je ferai de mon mieux avec ma base locale."],
+[/(je suis triste|je vais mal|je suis malheureux)/i,"Je suis désolé que tu te sentes comme ça. Explique ce qui se passe si tu veux qu'on réfléchisse ensemble."],
+[/(je suis perdu|je ne comprends pas|je comprends rien)/i,"Commence par préciser ce que tu essaies d'accomplir. Un problème flou devient plus facile quand on le découpe."],
+[/(amour|c.?est quoi l.?amour)/i,"L'amour est compliqué. Les mathématiques sont beaucoup plus coopératives."],
+[/(comment faire.*site|créer.*site|creer.*site)/i,"Utilise HTML pour la structure, CSS pour le design et JavaScript pour l'interactivité."],
+[/(comment gagner.*argent|gagner.*argent|faire.*argent)/i,"Vends une compétence, un produit ou un service utile. Évite les promesses de richesse instantanée."],
+[/(répond.*tout|réponds.*tout|toutes les questions)/i,"Non. Cette version fonctionne avec une base locale de réponses préparées. Elle n'a pas une intelligence générale."]
+];
+
+const fallbacks=[
+"Question intéressante. Mais je n'ai pas encore une réponse préparée pour celle-là.",
+"Je n'ai pas cette réponse dans ma base locale. Reformule plus précisément.",
+"Pas encore de réponse pour ça. Ma base doit être enrichie.",
+"Je peux répondre à beaucoup de questions, mais pas à une question que je n'ai pas prévue. Pas d'API, pas de magie."
+];
+
+function add(t,w){
+ const r=document.createElement("div");r.className="msg "+w;
+ const a=document.createElement("div");a.className="avatar";a.textContent=w==="ai"?"D":"U";
+ const b=document.createElement("div");b.className="bubble";b.textContent=t;
+ r.append(a,b);chat.appendChild(r);chat.scrollTop=chat.scrollHeight;
+}
+function answer(q){
+ const n=q.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+ for(const [pattern,text] of rules) if(pattern.test(n)) return text;
+ return fallbacks[Math.floor(Math.random()*fallbacks.length)];
+}
+form.onsubmit=e=>{
+ e.preventDefault();const q=input.value.trim();if(!q)return;
+ document.querySelector(".welcome")?.remove();add(q,"user");input.value="";
+ setTimeout(()=>add(answer(q),"ai"),250);
+};
+</script>
+</body>
+</html>
